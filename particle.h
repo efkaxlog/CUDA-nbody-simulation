@@ -19,6 +19,6 @@ class Particle {
         void printPos();
 };
 
-Particle generateRandomParticle();
+Particle generateRandomParticle(float range, bool canBeNegative);
 
 #endif /* PARTICLE_H */

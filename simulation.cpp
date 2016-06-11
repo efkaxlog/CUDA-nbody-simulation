@@ -11,7 +11,7 @@ void Simulation::togglePause() {
     simulationPaused = !simulationPaused;
 }
 
-void Simulation::makeOneCube() {
+void Simulation::makeCube() {
     int index = 0;
     float xPos, yPos, zPos;
     xPos = yPos = zPos = 10.0f;
@@ -32,10 +32,10 @@ void Simulation::makeOneCube() {
     }
 }
 
-void Simulation::makeCubes() {
+void Simulation::generateRandomParticles(float range, bool canBeNegative) {
     int index = 0;
     while(index < particlesNumber) {
-        Particle particle = generateRandomParticle();
+        Particle particle = generateRandomParticle(range, canBeNegative);
         particle.mass = 0.0001f;
         particles.push_back(particle);
         index ++;

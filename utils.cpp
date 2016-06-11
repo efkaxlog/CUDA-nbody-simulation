@@ -2,17 +2,10 @@
 #include <cstdlib>
 #include <time.h>
 
-float generateRandomPositiveNumber(float range)
+float generateRandomNumber(float range, bool canBeNegative)
 {
-    return static_cast <float> (rand()) / (static_cast <float> (RAND_MAX / range));
-}
-
-float generateRandomNumber(float range)
-{
-    float number = generateRandomPositiveNumber(range); 
-    if(number > range / 2)
-    {
-        return -number;
-    }
+    float number = ((float(rand()) / float(RAND_MAX)) * (range - -range)) + -range;
+    if (!canBeNegative && number < 0)
+        number = -number;
     return number;
 }

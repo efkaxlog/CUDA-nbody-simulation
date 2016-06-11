@@ -12,8 +12,8 @@ class Simulation {
         Physics *physics;
         Simulation(int particlesNumber, Physics *physics);
         void togglePause();
-        void makeOneCube();
-        void makeCubes();
+        void makeCube();
+        void generateRandomParticles(float range, bool canBeNegative);
         void calculateForces();
 };
 

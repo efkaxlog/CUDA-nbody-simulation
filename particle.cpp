@@ -39,7 +39,7 @@ std::array<float, 3> Particle::getColours()
     return {r, g, b};
 }
 
-Particle generateRandomParticle()
+Particle generateRandomParticle(float range, bool canBeNegative)
 {
     float mass = 1.0f;
     //float mass = generateRandomPositiveNumber(1000.0f);
@@ -49,13 +49,13 @@ Particle generateRandomParticle()
     //float dx = generateRandomNumber(0.05f);
     //float dy = generateRandomNumber(0.05f);
     //float dz = generateRandomNumber(0.05f);
-    float xPos = generateRandomNumber(10.0f); 
-    float yPos = generateRandomNumber(10.0f);
-    float zPos = generateRandomNumber(10.0f);
-    float size = generateRandomPositiveNumber(5.0f);
-    float r = generateRandomPositiveNumber(1.0f);
-    float g = generateRandomPositiveNumber(1.0f);
-    float b = generateRandomPositiveNumber(1.0f);
+    float xPos = generateRandomNumber(range, canBeNegative); 
+    float yPos = generateRandomNumber(range, canBeNegative);
+    float zPos = generateRandomNumber(range, canBeNegative);
+    float size = generateRandomNumber(5.0f, false);
+    float r = generateRandomNumber(1.0f, false);
+    float g = generateRandomNumber(1.0f, false);
+    float b = generateRandomNumber(1.0f, false);
     return Particle(mass, dx, dy, dz, xPos, yPos, zPos,
                     size, r, g, b);
 }

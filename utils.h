@@ -1,7 +1,6 @@
 #ifndef UTILS_H
 #define UTILS_H
 
-float generateRandomPositiveNumber(float range);
-float generateRandomNumber(float range);
+float generateRandomNumber(float range, bool canBeNegative);
 
 #endif /* UTILS_H */
