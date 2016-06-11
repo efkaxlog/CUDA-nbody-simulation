@@ -9,13 +9,11 @@ const GLchar* vertexSource =
     "uniform mat4 view;"
     "uniform mat4 proj;"
     "uniform mat4 ortho;"
-    "uniform vec3 cameraOrigin;"
     "void main()"
     "{"
     "   Color = color;"
-    "   gl_PointSize = 0.1;"
-    "   gl_Position = proj * view * vec4(position, 1.0);"
-    //"   gl_PointSize = length(position.xyz - cameraOrigin);"
+    "   gl_PointSize = 100.0 / length(view * vec4(position.xyz, 1.0));"
+    "   gl_Position = proj * view * vec4(position.xyz, 1.0);"
     "}";
  
 const GLchar* fragmentSource =
@@ -24,10 +22,10 @@ const GLchar* fragmentSource =
     "out vec4 outColor;"
     "void main()"
     "{"
-    //"   vec2 circCoord = 2.0 * gl_PointCoord - 1.0;"
-    //"   if (dot(circCoord, circCoord) > 1.0) {"
-    //"   discard;"
-    //"   }"
+    "   vec2 circCoord = 2.0 * gl_PointCoord - 1.0;"
+    "   if (dot(circCoord, circCoord) > 1.0) {"
+    "       discard;"
+    "   }"
     "   outColor = vec4(1.0, 1.0, 1.0, 1.0);"
     "}";
 
