@@ -2,6 +2,7 @@
 #define RENDER_H
 #include <GL/glew.h>
 #include <GLFW/glfw3.h>
+#include <vector>
 #include "simulation.h"
 
 class Render {
@@ -10,7 +11,7 @@ class Render {
         float windowHeight;
         float renderCameraSpeed;
         int particleBufferValuesNumber;
-        float particlesBufferData[6000];
+        std::vector<float> particlesBufferData;
         GLfloat deltaTime = 0.0f;
         GLfloat lastFrame = 0.0f;
         Simulation *simulation;

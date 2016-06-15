@@ -32,11 +32,11 @@ const GLchar* fragmentSource =
 
 Render::Render(Simulation *simulation, float windowWidth,
                  float windowHeight, int particleBufferValuesNumber) {
-    this->window = window;
     this->simulation = simulation;
     this->windowWidth = windowWidth;
     this->windowHeight = windowHeight;
     this->particleBufferValuesNumber = particleBufferValuesNumber;
+    particlesBufferData.resize(simulation->particlesNumber * particleBufferValuesNumber);
 }
 
 void Render::setWindow(GLFWwindow *window) {
@@ -50,11 +50,11 @@ void Render::initialize() {
     GLuint vbo;
     glGenBuffers(1, &vbo);
     glBindBuffer(GL_ARRAY_BUFFER, vbo);
-    glBufferData(GL_ARRAY_BUFFER, sizeof(particlesBufferData), particlesBufferData, GL_DYNAMIC_DRAW);
+    glBufferData(GL_ARRAY_BUFFER, particlesBufferData.size() * sizeof(float),
+                    &particlesBufferData[0], GL_DYNAMIC_DRAW);
     shaderProgram = makeShaderProgram(vertexSource, fragmentSource);
     glUseProgram(shaderProgram);
 }   
-
 
 void Render::display() {
     glClear(GL_COLOR_BUFFER_BIT);
@@ -69,21 +69,20 @@ void Render::updateParticlesBufferData() {
         particlesBufferData[i * particleBufferValuesNumber + 1] = simulation->particles[i].yPos;
         particlesBufferData[i * particleBufferValuesNumber + 2] = simulation->particles[i].zPos;
     }
-    glBufferData(GL_ARRAY_BUFFER, sizeof(particlesBufferData), particlesBufferData, GL_DYNAMIC_DRAW);
+    glBufferData(GL_ARRAY_BUFFER, particlesBufferData.size() * sizeof(float),
+                    &particlesBufferData[0], GL_DYNAMIC_DRAW);
 }
 
 void Render::populateParticleBufferData() {
-    int index = 0;
-    while (index < simulation->particlesNumber) {
-        Particle p = simulation->particles.at(index);
-        particlesBufferData[index * particleBufferValuesNumber] = p.xPos;
-        particlesBufferData[index * particleBufferValuesNumber + 1] = p.yPos;
-        particlesBufferData[index * particleBufferValuesNumber + 2] = p.zPos;
-        particlesBufferData[index * particleBufferValuesNumber + 3] = p.r;
-        particlesBufferData[index * particleBufferValuesNumber + 4] = p.g;
-        particlesBufferData[index * particleBufferValuesNumber + 5] = p.b;
-        index++;
-    }   
+    particlesBufferData.clear();
+    for (const auto &p : simulation->particles) {
+        particlesBufferData.push_back(p.xPos);
+        particlesBufferData.push_back(p.yPos);
+        particlesBufferData.push_back(p.zPos);
+        particlesBufferData.push_back(p.r);
+        particlesBufferData.push_back(p.g);
+        particlesBufferData.push_back(p.b);
+    }
 }
 
 void Render::setAttribPointers() {
@@ -95,4 +94,3 @@ void Render::setAttribPointers() {
     glVertexAttribPointer(colourAttribute, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float), (void*)(3 * sizeof(GLfloat)));
     glEnableVertexAttribArray(colourAttribute);
 }
-
