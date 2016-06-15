@@ -26,7 +26,7 @@ const GLchar* fragmentSource =
     "   if (dot(circCoord, circCoord) > 1.0) {"
     "       discard;"
     "   }"
-    "   outColor = vec4(1.0, 1.0, 1.0, 1.0);"
+    "   outColor = vec4(Color, 1.0);"
     "}";
 
 
@@ -70,6 +70,9 @@ void Render::updateParticlesBufferData() {
         particlesBufferData[i * particleBufferValuesNumber] = simulation->particles[i].xPos;
         particlesBufferData[i * particleBufferValuesNumber + 1] = simulation->particles[i].yPos;
         particlesBufferData[i * particleBufferValuesNumber + 2] = simulation->particles[i].zPos;
+        particlesBufferData[i * particleBufferValuesNumber + 3] = simulation->particles[i].r;
+        particlesBufferData[i * particleBufferValuesNumber + 4] = simulation->particles[i].g;
+        particlesBufferData[i * particleBufferValuesNumber + 5] = simulation->particles[i].b;
     }
     glBufferData(GL_ARRAY_BUFFER, particlesBufferData.size() * sizeof(float),
                     particlesBufferData.data(), GL_DYNAMIC_DRAW);
