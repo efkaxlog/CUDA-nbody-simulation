@@ -46,9 +46,9 @@ Particle generateRandomParticle(float range, bool canBeNegative)
     float dx = 0.0f;
     float dy = 0.0f;
     float dz = 0.0f;
-    //float dx = generateRandomNumber(0.05f);
-    //float dy = generateRandomNumber(0.05f);
-    //float dz = generateRandomNumber(0.05f);
+    //float dx = generateRandomNumber(1.0f, true);
+    //float dy = generateRandomNumber(1.0f, true);
+    //float dz = generateRandomNumber(1.0f, true);
     float xPos = generateRandomNumber(range, canBeNegative); 
     float yPos = generateRandomNumber(range, canBeNegative);
     float zPos = generateRandomNumber(range, canBeNegative);
