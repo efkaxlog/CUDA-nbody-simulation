@@ -16,10 +16,8 @@
 
 using std::vector;
 
-
 GLfloat deltaTime = 0.0f;   // Time between current frame and last frame
 GLfloat lastFrame = 0.0f;   // Time of last frame
-
 
 int main() {
     srand(time(NULL)); // seeding random
@@ -31,41 +29,37 @@ int main() {
     glfwWindowHint(GLFW_RESIZABLE, GL_FALSE);
 
     const int particlesNumber = 500;
-    Physics physics(2.0f, 20.0f);
-    Simulation simulation(particlesNumber, &physics);
-    Camera camera(glm::vec3(0.0f, 0.0f, 100.0f),
-                  glm::vec3(0.0f, 0.0f, -100.0f),
-                  glm::vec3(0.0f, 1.0f, 0.0f));
-    Render render(&simulation, 1280.0f, 720.0f, 6);
-    
+    float windowWidth = 1280.0f;
+    float windowHeight = 720.0f;
+
     GLFWwindow *window = glfwCreateWindow(
-        render.windowWidth, render.windowHeight, "OpenGL", nullptr, nullptr); // Windowed
+        windowWidth, windowHeight, "OpenGL", nullptr, nullptr); // Windowed
     glfwMakeContextCurrent(window);
-    render.setWindow(window);
-    render.renderCameraSpeed = camera.speed;
-
-    glewExperimental = GL_TRUE;
-    glewInit();
-
-    setupControlFields(control, window, &simulation, &camera, &render);
 
     glfwSetKeyCallback(window, key_callback);
     glfwSetMouseButtonCallback(window, mouse_button_callback);
     glfwSetCursorPosCallback(window, mouse_movement_callback);
 
+    Physics physics(2.0f, 0.01f);
+    Simulation simulation(particlesNumber, &physics);
+    Camera camera(glm::vec3(0.0f, 0.0f, 100.0f),
+                  glm::vec3(0.0f, 0.0f, -100.0f),
+                  glm::vec3(0.0f, 1.0f, 0.0f));
+
+    glewExperimental = GL_TRUE;
+    glewInit();
     glEnable(GL_PROGRAM_POINT_SIZE);
 
     simulation.generateRandomParticles(50.0f, true);
-    render.initialize();
-    render.populateParticleBufferData();
-    render.setAttribPointers();
-    
-    glm::mat4 view = camera.lookAt();
+    Render render(&simulation, windowWidth, windowHeight, 6, window, camera.speed);
+    setupControlFields(control, window, &simulation, &camera, &render);
 
+    glm::mat4 view = camera.lookAt();
     GLint uniView = glGetUniformLocation(render.shaderProgram, "view");
     glUniformMatrix4fv(uniView, 1, GL_FALSE, glm::value_ptr(view));
-    
-    glm::mat4 proj = glm::perspective(glm::radians(45.0f), render.windowWidth / render.windowHeight, 0.1f, 100000.0f);
+
+    glm::mat4 proj = glm::perspective(glm::radians(45.0f), 
+        render.windowWidth / render.windowHeight, 0.1f, 100000.0f);
     GLint uniProj = glGetUniformLocation(render.shaderProgram, "proj");
     glUniformMatrix4fv(uniProj, 1, GL_FALSE, glm::value_ptr(proj));
 
@@ -85,7 +79,6 @@ int main() {
         render.updateParticlesBufferData();
         glfwPollEvents();
     }
-
     glfwTerminate();
 
     return 0;

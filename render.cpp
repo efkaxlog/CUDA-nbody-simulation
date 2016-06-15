@@ -31,16 +31,18 @@ const GLchar* fragmentSource =
 
 
 Render::Render(Simulation *simulation, float windowWidth,
-                 float windowHeight, int particleBufferValuesNumber) {
+                 float windowHeight, int particleBufferValuesNumber,
+                 GLFWwindow *window, float renderCameraSpeed) {
     this->simulation = simulation;
     this->windowWidth = windowWidth;
     this->windowHeight = windowHeight;
     this->particleBufferValuesNumber = particleBufferValuesNumber;
-    particlesBufferData.resize(simulation->particlesNumber * particleBufferValuesNumber);
-}
-
-void Render::setWindow(GLFWwindow *window) {
     this->window = window;
+    this->renderCameraSpeed = renderCameraSpeed;
+    particlesBufferData.resize(simulation->particlesNumber * particleBufferValuesNumber);
+    initialize();
+    populateParticleBufferData();
+    setAttribPointers();
 }
 
 void Render::initialize() {
@@ -51,7 +53,7 @@ void Render::initialize() {
     glGenBuffers(1, &vbo);
     glBindBuffer(GL_ARRAY_BUFFER, vbo);
     glBufferData(GL_ARRAY_BUFFER, particlesBufferData.size() * sizeof(float),
-                    &particlesBufferData[0], GL_DYNAMIC_DRAW);
+                    particlesBufferData.data(), GL_DYNAMIC_DRAW);
     shaderProgram = makeShaderProgram(vertexSource, fragmentSource);
     glUseProgram(shaderProgram);
 }   
@@ -70,7 +72,7 @@ void Render::updateParticlesBufferData() {
         particlesBufferData[i * particleBufferValuesNumber + 2] = simulation->particles[i].zPos;
     }
     glBufferData(GL_ARRAY_BUFFER, particlesBufferData.size() * sizeof(float),
-                    &particlesBufferData[0], GL_DYNAMIC_DRAW);
+                    particlesBufferData.data(), GL_DYNAMIC_DRAW);
 }
 
 void Render::populateParticleBufferData() {

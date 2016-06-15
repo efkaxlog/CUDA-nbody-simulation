@@ -18,8 +18,8 @@ class Render {
         GLFWwindow *window;
         GLuint shaderProgram;
         Render(Simulation *simulation, float windowWidth,
-                 float windowHeight, int particleBufferValuesNumber);
-        void setWindow(GLFWwindow *window);
+                 float windowHeight, int particleBufferValuesNumber,
+                 GLFWwindow *window, float renderCameraSpeed);
         void display();
         void setAttribPointers();
         void initialize();
