@@ -30,8 +30,8 @@ int main() {
     glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE);
     glfwWindowHint(GLFW_RESIZABLE, GL_FALSE);
 
-    const int particlesNumber = 1000;
-    Physics physics(0.2f, 0.2f);
+    const int particlesNumber = 500;
+    Physics physics(2.0f, 20.0f);
     Simulation simulation(particlesNumber, &physics);
     Camera camera(glm::vec3(0.0f, 0.0f, 100.0f),
                   glm::vec3(0.0f, 0.0f, -100.0f),
@@ -55,17 +55,12 @@ int main() {
 
     glEnable(GL_PROGRAM_POINT_SIZE);
 
-    simulation.makeCubes();
+    simulation.generateRandomParticles(50.0f, true);
     render.initialize();
     render.populateParticleBufferData();
     render.setAttribPointers();
     
-    glm::vec3 cameraOrigin = camera.origin;    
-
     glm::mat4 view = camera.lookAt();
-
-    GLint uniCameraOrigin = glGetUniformLocation(render.shaderProgram, "cameraOrigin");
-    glUniformMatrix4fv(uniCameraOrigin, 1, GL_FALSE, glm::value_ptr(cameraOrigin));
 
     GLint uniView = glGetUniformLocation(render.shaderProgram, "view");
     glUniformMatrix4fv(uniView, 1, GL_FALSE, glm::value_ptr(view));
@@ -86,7 +81,6 @@ int main() {
         camera.rotate();
         if(!simulation.simulationPaused) {
             simulation.calculateForces();
-            render.updateParticlesBufferData();
         }
         render.updateParticlesBufferData();
         glfwPollEvents();
