@@ -13,8 +13,9 @@
 #include "simulation.h"
 #include "controls.h"
 #include "render.h"
-
-using std::vector;
+#include <cuda_runtime_api.h>
+#include <cuda.h>
+#include "nbody.h"
 
 GLfloat deltaTime = 0.0f;   // Time between current frame and last frame
 GLfloat lastFrame = 0.0f;   // Time of last frame
@@ -28,7 +29,6 @@ int main() {
     glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE);
     glfwWindowHint(GLFW_RESIZABLE, GL_FALSE);
 
-    const int particlesNumber = 500;
     float windowWidth = 1280.0f;
     float windowHeight = 720.0f;
 
@@ -40,15 +40,20 @@ int main() {
     glfwSetMouseButtonCallback(window, mouse_button_callback);
     glfwSetCursorPosCallback(window, mouse_movement_callback);
 
-    Physics physics(2.0f, 0.01f);
+    glewExperimental = GL_TRUE;
+    glewInit();
+    glEnable(GL_PROGRAM_POINT_SIZE);
+    glEnable(GL_POINT_SMOOTH);
+    glEnable(GL_BLEND);
+    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+
+    const int particlesNumber = 46300;
+
+    Physics physics(10.0f, 0.01f);
     Simulation simulation(particlesNumber, &physics);
     Camera camera(glm::vec3(0.0f, 0.0f, 100.0f),
                   glm::vec3(0.0f, 0.0f, -100.0f),
                   glm::vec3(0.0f, 1.0f, 0.0f));
-
-    glewExperimental = GL_TRUE;
-    glewInit();
-    glEnable(GL_PROGRAM_POINT_SIZE);
 
     simulation.generateRandomParticles(50.0f, true);
     Render render(&simulation, windowWidth, windowHeight, 6, window, camera.speed);
@@ -62,6 +67,8 @@ int main() {
         render.windowWidth / render.windowHeight, 0.1f, 100000.0f);
     GLint uniProj = glGetUniformLocation(render.shaderProgram, "proj");
     glUniformMatrix4fv(uniProj, 1, GL_FALSE, glm::value_ptr(proj));
+    
+    setupCuda(&simulation);
 
     while(!glfwWindowShouldClose(window)) {
         GLfloat currentFrame = glfwGetTime();
@@ -74,12 +81,15 @@ int main() {
         doMovement();
         camera.rotate();
         if(!simulation.simulationPaused) {
-            simulation.calculateForces();
+            //simulation.calculateForces();
+            cudaCalculate();
+            updateData();
+            simulation.updatePositions();
         }
         render.updateParticlesBufferData();
         glfwPollEvents();
     }
     glfwTerminate();
-
+    cleanupCuda();
     return 0;
 }
