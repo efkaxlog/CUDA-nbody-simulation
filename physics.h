@@ -6,10 +6,10 @@ class Physics {
     public:
         float G;
         float softening;
-        float getDistance(Particle *p1, Particle *p2);
-        float getAccX(Particle *p1, Particle *p2, float distance);
-        float getAccY(Particle *p1, Particle *p2, float distance);
-        float getAccZ(Particle *p1, Particle *p2, float distance);
+        float getDistance(float xPos, float xPosOther,
+                          float yPos, float yPosOther,
+                          float zPos, float zPosOther);
+        float getForce(float pos, float otherPos, float mass, float distance);
         Physics(float G, float softening);
 };
 

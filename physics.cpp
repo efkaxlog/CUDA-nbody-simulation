@@ -8,28 +8,15 @@ Physics::Physics(float G, float softening) {
     this->softening = softening;
 }
 
-float Physics::getDistance(Particle *p1, Particle *p2)
-{
-    float distx = p1->xPos - p2->xPos;
-    float disty = p1->yPos - p2->yPos;
-    float distz = p1->zPos - p2->zPos;
+float Physics::getDistance(float xPos, float xPosOther,
+                  float yPos, float yPosOther,
+                  float zPos, float zPosOther) {
+    float distx = xPos - xPosOther;
+    float disty = yPos - yPosOther;
+    float distz = zPos - zPosOther;
     return sqrt(distx*distx + disty*disty + distz*distz);
 }
 
-float Physics::getAccX(Particle *p1, Particle *p2, float d)
-{
-    return G * p1->mass / d * (p1->xPos - p2->xPos) * softening;
-}
-
-
-float Physics::getAccY(Particle *p1, Particle *p2, float d)
-{
-
-    return G * p1->mass / d * (p1->yPos - p2->yPos) * softening;
-}
-
-float Physics::getAccZ(Particle *p1, Particle *p2, float d)
-{
-
-    return G * p1->mass / d * (p1->zPos - p2->zPos) * softening;
+float Physics::getForce(float pos, float otherPos, float mass, float distance) {
+    return G * mass / distance * (pos - otherPos) * softening;
 }
