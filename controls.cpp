@@ -1,11 +1,5 @@
 #include "controls.h"
 #include <iostream>
-//Controls::Controls(GLFWwindow *window, Simulation *simulation, Camera *camera, Render *render) {
-//    this->window = window;
-//    this->simulation = simulation;
-//    this->camera = camera;
-//    this->render = render;
-//}
 
 Control control;
 
@@ -28,27 +22,16 @@ void doMovement() {
         control.camera->move(CAM_RIGHT);
 }
 
-void printParticlePos(Particle *particle) {
-    std::cout<<"---------------\n";
-    std::cout<<particle->xPos<<"\n";
-    std::cout<<particle->yPos<<"\n";
-    std::cout<<particle->zPos<<"\n";
-    
-    std::cout<<"\n";
-}
-
 void handleKeyPresses(int key) {
     switch (key) {
         case GLFW_KEY_ESCAPE:
             glfwSetWindowShouldClose(control.window, GL_TRUE);
             break;
-        case GLFW_KEY_P:
-            printParticlePos(&control.simulation->particles.at(0));
-            printParticlePos(&control.simulation->particles.at(control.simulation->particles.size() / 2));
-            printParticlePos(&control.simulation->particles.at(1));
-            break;
         case GLFW_KEY_G:
             control.simulation->physics->G += control.simulation->physics->G / 10;
+            break;
+        case GLFW_KEY_H:
+            control.simulation->physics->G -= 0.05f;
             break;
         case GLFW_KEY_RIGHT:
             control.simulation->calculateForces();

@@ -5,17 +5,13 @@
 class Particle {
     public:
         float mass;
-        float dx, dy, dz; // velocity x, y, z
+        float xForce, yForce, zForce; // velocity x, y, z
         float xPos, yPos, zPos;
-        float size;
-        float r, g, b; // colours
+        float red, green, blue; // colours
         Particle();
-        Particle(float mass, float dx, float dy, float dz,
-                 float xPos, float yPos, float zPos, float size,
-                 float r, float g, float b);
-        bool operator==(const Particle &otherParticle);
-        std::array<float, 3> getPosition();
-        std::array<float, 3> getColours();
+        Particle(float mass, float xForce, float yForce, float zForce,
+                 float xPos, float yPos, float zPos, 
+                 float red, float green, float blue);
         void printPos();
 };
 
