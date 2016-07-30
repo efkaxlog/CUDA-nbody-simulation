@@ -2,7 +2,7 @@
 #include "shader.h"
 
 const GLchar* vertexSource =
-    "#version 150 core\n"
+    "#version 450 core\n"
     "in vec3 position;"
     "in vec3 color;"
     "out vec3 Color;"
@@ -12,21 +12,21 @@ const GLchar* vertexSource =
     "void main()"
     "{"
     "   Color = color;"
-    "   gl_PointSize = 100.0 / length(view * vec4(position.xyz, 1.0));"
+    "   gl_PointSize = 200.0 / length(view * vec4(position.xyz, 1.0));"
     "   gl_Position = proj * view * vec4(position.xyz, 1.0);"
     "}";
  
 const GLchar* fragmentSource =
-     "#version 150 core\n"
+     "#version 450 core\n"
     "in vec3 Color;"
     "out vec4 outColor;"
     "void main()"
     "{"
-    "   vec2 circCoord = 2.0 * gl_PointCoord - 1.0;"
-    "   if (dot(circCoord, circCoord) > 1.0) {"
-    "       discard;"
-    "   }"
-    "   outColor = vec4(Color, 1.0);"
+    //"   vec2 circCoord = 2.0 * gl_PointCoord - 1.0;"
+    //"   if (dot(circCoord, circCoord) > 1.0) {"
+    //"       discard;"
+    //"   }"
+    "   outColor = vec4(1.0, 1.0, 1.0, 0.15);"
     "}";
 
 
@@ -66,13 +66,14 @@ void Render::display() {
 } 
 
 void Render::updateParticlesBufferData() {
-    for(int i=0; i<simulation->particles.size(); i++) {
-        particlesBufferData[i * particleBufferValuesNumber] = simulation->particles[i].xPos;
-        particlesBufferData[i * particleBufferValuesNumber + 1] = simulation->particles[i].yPos;
-        particlesBufferData[i * particleBufferValuesNumber + 2] = simulation->particles[i].zPos;
-        particlesBufferData[i * particleBufferValuesNumber + 3] = simulation->particles[i].r;
-        particlesBufferData[i * particleBufferValuesNumber + 4] = simulation->particles[i].g;
-        particlesBufferData[i * particleBufferValuesNumber + 5] = simulation->particles[i].b;
+    for(int i=0; i<simulation->particlesNumber; i++) {
+        Particle p = simulation->getParticleAt(i);
+        particlesBufferData[i * particleBufferValuesNumber] = p.xPos;
+        particlesBufferData[i * particleBufferValuesNumber + 1] = p.yPos;
+        particlesBufferData[i * particleBufferValuesNumber + 2] = p.zPos;
+        particlesBufferData[i * particleBufferValuesNumber + 3] = p.red;
+        particlesBufferData[i * particleBufferValuesNumber + 4] = p.green;
+        particlesBufferData[i * particleBufferValuesNumber + 5] = p.blue;
     }
     glBufferData(GL_ARRAY_BUFFER, particlesBufferData.size() * sizeof(float),
                     particlesBufferData.data(), GL_DYNAMIC_DRAW);
@@ -80,13 +81,14 @@ void Render::updateParticlesBufferData() {
 
 void Render::populateParticleBufferData() {
     particlesBufferData.clear();
-    for (const auto &p : simulation->particles) {
+    for (int i=0; i<simulation->particlesNumber; i++) {
+        Particle p = simulation->getParticleAt(i);
         particlesBufferData.push_back(p.xPos);
         particlesBufferData.push_back(p.yPos);
         particlesBufferData.push_back(p.zPos);
-        particlesBufferData.push_back(p.r);
-        particlesBufferData.push_back(p.g);
-        particlesBufferData.push_back(p.b);
+        particlesBufferData.push_back(p.red);
+        particlesBufferData.push_back(p.green);
+        particlesBufferData.push_back(p.blue);
     }
 }
 
