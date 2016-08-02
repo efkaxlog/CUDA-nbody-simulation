@@ -15,10 +15,34 @@ void Simulation::generateRandomParticles(float range, bool canBeNegative) {
     int index = 0;
     while(index < particlesNumber) {
         Particle p = generateRandomParticle(range, canBeNegative);
-        p.mass = 0.0001f;
-        addParticle(p.xPos, p.yPos, p.zPos, p.xForce, p.yForce, p.zForce,
-            p.mass, p.red, p.green, p.blue);
+        p.mass = 0.000001f;
+        addParticle(p);
         index ++;
+    }
+}
+
+/**
+    Only creates a cube correctly if the cube root of the 
+    number of particles is a whole integer.
+*/
+void Simulation::makeCube() {
+    int index = 0;
+    float xPos, yPos, zPos;
+    xPos = yPos = zPos = 30.0f * 30.0f;
+    int side = 30;
+    float inc = xPos / side;
+    for(int i=0; i < side; i++) {
+        for(int j=0; j< side; j++) {
+            for(int k=0; k<side; k++) {
+                Particle particle(0.0001f, 0.0f, 0.0f, 0.0f, xPos, yPos, zPos, 1.0f, 1.0f, 1.0f);
+                addParticle(particle);
+                xPos -= inc;
+            }
+        xPos = 10.0f;
+        yPos -= inc;
+        }
+    yPos = 10.0f;
+    zPos -= inc;
     }
 }
 
@@ -49,20 +73,17 @@ void Simulation::calculateForces() {
     }
 }
 
-void Simulation::addParticle(
-        float xPos, float yPos, float zPos,
-        float xForce, float yForce, float zForce,
-        float mass, float red, float green, float blue) {
-    xPositions.push_back(xPos);
-    yPositions.push_back(yPos);
-    zPositions.push_back(zPos);
-    xForces.push_back(xForce);
-    yForces.push_back(yForce);
-    zForces.push_back(zForce);
-    masses.push_back(mass);
-    reds.push_back(red);
-    greens.push_back(green);
-    blues.push_back(blue);
+void Simulation::addParticle(Particle p) {
+    xPositions.push_back(p.xPos);
+    yPositions.push_back(p.yPos);
+    zPositions.push_back(p.zPos);
+    xForces.push_back(p.xForce);
+    yForces.push_back(p.yForce);
+    zForces.push_back(p.zForce);
+    masses.push_back(p.mass);
+    reds.push_back(p.red);
+    greens.push_back(p.green);
+    blues.push_back(p.blue);
 }
 
 Particle Simulation::getParticleAt(int i) {

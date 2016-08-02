@@ -22,11 +22,9 @@ class Simulation {
         Simulation(int particlesNumber, Physics *physics);
         void togglePause();
         void generateRandomParticles(float range, bool canBeNegative);
+        void makeCube();
         void calculateForces();
-        void addParticle(
-            float xPos, float yPos, float zPos,
-            float xForce, float yForce, float zForce,
-            float mass, float red, float green, float blue);
+        void addParticle(Particle p);
         Particle getParticleAt(int index);
         void updatePositions();
 };
