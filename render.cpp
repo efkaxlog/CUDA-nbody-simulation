@@ -26,7 +26,7 @@ const GLchar* fragmentSource =
     //"   if (dot(circCoord, circCoord) > 1.0) {"
     //"       discard;"
     //"   }"
-    "   outColor = vec4(1.0, 1.0, 1.0, 0.15);"
+    "   outColor = vec4(Color, 0.15);"
     "}";
 
 
