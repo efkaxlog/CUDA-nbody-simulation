@@ -68,7 +68,7 @@ int main() {
     GLint uniProj = glGetUniformLocation(render.shaderProgram, "proj");
     glUniformMatrix4fv(uniProj, 1, GL_FALSE, glm::value_ptr(proj));
     
-    setupCuda(&simulation);
+    setupCuda(&simulation, 64);
 
     while(!glfwWindowShouldClose(window)) {
         GLfloat currentFrame = glfwGetTime();
