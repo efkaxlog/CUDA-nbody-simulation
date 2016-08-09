@@ -25,10 +25,13 @@ __global__ void calculateForcesCuda(float *deviceXpos, float *deviceYpos, float 
                                    float *deviceXforces, float *deviceYforces, float *deviceZforces,
                                    float *deviceMasses, int particlesNumber) {
     int tid = threadIdx.x + blockIdx.x * blockDim.x;
-    float particleXpos = deviceXpos[tid];
-    float particleYpos = deviceYpos[tid];
-    float particleZpos = deviceZpos[tid];
     if (tid <= particlesNumber) {
+        float particleXpos = deviceXpos[tid];
+        float particleYpos = deviceYpos[tid];
+        float particleZpos = deviceZpos[tid];
+        float xForce = 0.0f;
+        float yForce = 0.0f;
+        float zForce = 0.0f;
         for (int index=0; index<particlesNumber; index++) {
             if (tid != index) {
                 float otherXpos = deviceXpos[index];
@@ -39,11 +42,14 @@ __global__ void calculateForcesCuda(float *deviceXpos, float *deviceYpos, float 
                 float disty = particleYpos - otherYpos;
                 float distz = particleZpos - otherZpos; 
                 float distance = sqrt((distx*distx + disty*disty + distz*distz) + 0.01f);
-                deviceXforces[tid] += 10.0f * mass / distance * (otherXpos - particleXpos); 
-                deviceYforces[tid] += 10.0f * mass / distance * (otherYpos - particleYpos); 
-                deviceZforces[tid] += 10.0f * mass / distance * (otherZpos - particleZpos); 
+                xForce += 10.0f * mass / distance * (otherXpos - particleXpos); 
+                yForce += 10.0f * mass / distance * (otherYpos - particleYpos); 
+                zForce += 10.0f * mass / distance * (otherZpos - particleZpos); 
             }
-        }
+        }   
+        deviceXforces[tid] += xForce; 
+        deviceYforces[tid] += yForce;           
+        deviceZforces[tid] += zForce;
     }
 }
 
