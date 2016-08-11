@@ -27,6 +27,7 @@ int main() {
     glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 2);
     glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
     glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE);
+    
     glfwWindowHint(GLFW_RESIZABLE, GL_FALSE);
 
     float windowWidth = 1280.0f;
@@ -35,7 +36,6 @@ int main() {
     GLFWwindow *window = glfwCreateWindow(
         windowWidth, windowHeight, "OpenGL", nullptr, nullptr); // Windowed
     glfwMakeContextCurrent(window);
-
     glfwSetKeyCallback(window, key_callback);
     glfwSetMouseButtonCallback(window, mouse_button_callback);
     glfwSetCursorPosCallback(window, mouse_movement_callback);
@@ -47,7 +47,7 @@ int main() {
     glEnable(GL_BLEND);
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
-    const int particlesNumber = 46300;
+    const int particlesNumber = 32768;
 
     Physics physics(10.0f, 0.01f);
     Simulation simulation(particlesNumber, &physics);
@@ -55,7 +55,7 @@ int main() {
                   glm::vec3(0.0f, 0.0f, -100.0f),
                   glm::vec3(0.0f, 1.0f, 0.0f));
 
-    simulation.generateRandomParticles(50.0f, true);
+    simulation.generateRandomParticles(100.0f, true);
     Render render(&simulation, windowWidth, windowHeight, 6, window, camera.speed);
     setupControlFields(control, window, &simulation, &camera, &render);
 
@@ -68,8 +68,11 @@ int main() {
     GLint uniProj = glGetUniformLocation(render.shaderProgram, "proj");
     glUniformMatrix4fv(uniProj, 1, GL_FALSE, glm::value_ptr(proj));
     
-    setupCuda(&simulation, 64);
+    setupCuda(&simulation);
 
+    
+    
+    //int steps = 0;
     while(!glfwWindowShouldClose(window)) {
         GLfloat currentFrame = glfwGetTime();
         deltaTime = currentFrame - lastFrame;
@@ -81,13 +84,15 @@ int main() {
         doMovement();
         camera.rotate();
         if(!simulation.simulationPaused) {
-            //simulation.calculateForces();
             cudaCalculate();
             updateData();
             simulation.updatePositions();
+        //    steps++;
         }
         render.updateParticlesBufferData();
         glfwPollEvents();
+        //if (steps >= 50) 
+        //    break;
     }
     glfwTerminate();
     cleanupCuda();
