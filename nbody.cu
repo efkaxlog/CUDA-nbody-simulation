@@ -7,7 +7,8 @@ namespace cuda {
     float *deviceXforces, *deviceYforces, *deviceZforces;
     float *deviceMasses;
     int particlesMemorySize;
-    int blocks, threads;
+    int blocks;
+    const int threads = 64;
     int particlesNumber;
     Simulation *sim;
 }
@@ -18,47 +19,55 @@ void cudaCalculate() {
     calculateForcesCuda<<<blocks, threads>>>(
         deviceXpos, deviceYpos, deviceZpos,
         deviceXforces, deviceYforces, deviceZforces,
-        deviceMasses, particlesNumber);
+        particlesNumber);
 }
 
 __global__ void calculateForcesCuda(float *deviceXpos, float *deviceYpos, float *deviceZpos, 
-                                   float *deviceXforces, float *deviceYforces, float *deviceZforces,
-                                   float *deviceMasses, int particlesNumber) {
+                                    float *deviceXforces, float *deviceYforces, float *deviceZforces,
+                                    int particlesNumber) {
+
     int tid = threadIdx.x + blockIdx.x * blockDim.x;
-    if (tid <= particlesNumber) {
-        float particleXpos = deviceXpos[tid];
-        float particleYpos = deviceYpos[tid];
-        float particleZpos = deviceZpos[tid];
-        float xForce = 0.0f;
-        float yForce = 0.0f;
-        float zForce = 0.0f;
-        for (int index=0; index<particlesNumber; index++) {
-            if (tid != index) {
-                float otherXpos = deviceXpos[index];
-                float otherYpos = deviceYpos[index];
-                float otherZpos = deviceZpos[index];
-                float mass = deviceMasses[index];
-                float distx = particleXpos - otherXpos; 
-                float disty = particleYpos - otherYpos;
-                float distz = particleZpos - otherZpos; 
-                float distance = sqrt((distx*distx + disty*disty + distz*distz) + 0.01f);
-                xForce += 10.0f * mass / distance * (otherXpos - particleXpos); 
-                yForce += 10.0f * mass / distance * (otherYpos - particleYpos); 
-                zForce += 10.0f * mass / distance * (otherZpos - particleZpos); 
-            }
-        }   
-        deviceXforces[tid] += xForce; 
-        deviceYforces[tid] += yForce;           
-        deviceZforces[tid] += zForce;
+    __shared__ float localPosX[threads];
+    __shared__ float localPosY[threads];
+    __shared__ float localPosZ[threads];
+    float3 body = {deviceXpos[tid],
+                   deviceYpos[tid],
+                   deviceZpos[tid]};
+    float3 force = {0.0f, 0.0f, 0.0f};
+    const float mass = 0.0001f;
+    const float G = 2.0f;
+
+    for (unsigned int i=0; i<particlesNumber; i+=threads) {
+        localPosX[threadIdx.x] = deviceXpos[i + threadIdx.x]; 
+        localPosY[threadIdx.x] = deviceYpos[i + threadIdx.x]; 
+        localPosZ[threadIdx.x] = deviceZpos[i + threadIdx.x]; 
+        __syncthreads();
+
+        for (unsigned int index=0; index<threads; index++) {
+            float3 other = {localPosX[index], 
+                            localPosY[index],
+                            localPosZ[index]};
+            float3 r = {body.x - other.x,
+                        body.y - other.y,
+                        body.z - other.z};
+            float distance = sqrtf((r.x*r.x + r.y*r.y + r.z*r.z) + 0.01f);
+            force.x += G * mass / distance * (other.x - body.x); 
+            force.y += G * mass / distance * (other.y - body.y); 
+            force.z += G * mass / distance * (other.z - body.z); 
+        }
+        __syncthreads();
     }
+    deviceXforces[tid] += force.x; 
+    deviceYforces[tid] += force.y;           
+    deviceZforces[tid] += force.z;
 }
 
-void setupCuda(Simulation *simulation, int threads) {
+
+void setupCuda(Simulation *simulation) {
     sim = simulation;
     particlesNumber = sim->particlesNumber;
     particlesMemorySize = particlesNumber * sizeof(float);
-    cuda::threads = threads;
-    blocks = particlesNumber / threads + 1;
+    blocks = particlesNumber / threads;
     prepareCuda();
 }
 
@@ -85,10 +94,6 @@ void prepareCuda() {
     
     cudaMalloc((void**)&deviceZforces, particlesMemorySize);
     cudaMemcpy(deviceZforces, sim->zForces.data(),
-        particlesMemorySize, cudaMemcpyHostToDevice);
-    
-    cudaMalloc((void**)&deviceMasses, particlesMemorySize);
-    cudaMemcpy(deviceMasses, sim->masses.data(),
         particlesMemorySize, cudaMemcpyHostToDevice);
 }
 

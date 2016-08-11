@@ -5,9 +5,9 @@
 
 __global__ void calculateForcesCuda(float *deviceXpos, float *deviceYpos, float *deviceZpos, 
        float *deviceXforces, float *deviceYforces, float *deviceZforces,
-       float *deviceMasses, int particlesNumber);
+       int particlesNumber);
 void cudaCalculate();
-void setupCuda(Simulation *sim, int threads);
+void setupCuda(Simulation *sim);
 void prepareCuda();
 void updateData();
 void cleanupCuda();
